@@ -37,8 +37,7 @@ PERGUNTA DO USUÁRIO:
 RESPONDA A "PERGUNTA DO USUÁRIO"
 """
 
-def search_prompt(question=None):
-    question = "Which are the 3 companies with the highest revenue?"
+def search_prompt(user_question=None):
 
     embeddings = OpenAIEmbeddings(model=os.getenv("OPENAI_EMBEDDING_MODEL"))
 
@@ -49,7 +48,7 @@ def search_prompt(question=None):
         use_jsonb=True,
     )
 
-    results = store.similarity_search_with_score(question, k=10)
+    results = store.similarity_search_with_score(user_question, k=10)
 
     question_template = PromptTemplate(
       input_variables=["pergunta", "contexto"],
@@ -58,12 +57,13 @@ def search_prompt(question=None):
 
     contexto = "\n\n".join([doc.page_content for doc, _ in results])
 
-    model = ChatOpenAI(model="gpt-4.1-mini-2025-04-14", temperature=0)
+    model = ChatOpenAI(model="gpt-5-nano", temperature=0)
 
     chain = question_template | model
 
-    response = chain.invoke({"pergunta": question, "contexto": contexto})
-    print(response.content)
+    response = chain.invoke({"pergunta": user_question, "contexto": contexto})
+
+    return response
     
 
 
